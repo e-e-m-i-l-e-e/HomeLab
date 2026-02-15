@@ -1,0 +1,53 @@
+services:
+  jfrog-artifactory:
+    image: emilyyy0621/jfrog-artifactory:latest
+    container_name: jfrog-artifactory
+    environment:
+      - SKIP_WAIT_FOR_EXTERNAL_DB=true
+    ports:
+      - "1000:8082"
+      - "443:443"
+    volumes:
+      - artifactory-data:/var/opt/jfrog/artifactory
+      - localtime:/etc/localtime:ro
+    networks:
+      artifactory-network:
+    depends_on:
+      - postgres
+    restart: always
+
+  nginx:
+    image: releases-docker.jfrog.io/jfrog/nginx-artifactory-pro:latest
+    container_name: nginx
+    depends_on:
+      - jfrog-artifactory
+    network_mode: service:jfrog-artifactory
+    volumes:
+      - nginx-data:/var/opt/jfrog/nginx
+      - localtime:/etc/localtime:ro
+    environment:
+      - SSL=true
+    restart: always
+
+  postgres:
+    image: releases-docker.jfrog.io/postgres:17.6-alpine
+    container_name: postgres
+    environment:
+      - POSTGRES_DB=artifactory
+      - POSTGRES_USER=artifactory
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - localtime:/etc/localtime:ro
+    networks:
+      artifactory-network:
+    restart: always
+
+volumes:
+  nginx-data:
+  postgres-data:
+  artifactory-data:
+  localtime:
+
+networks:
+  artifactory-network:
