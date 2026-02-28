@@ -5,7 +5,7 @@ services:
     environment:
       - SKIP_WAIT_FOR_EXTERNAL_DB=true
     ports:
-      - "1001:8082"
+      - "8082:8082"
     volumes:
       - artifactory-data:/var/opt/jfrog/artifactory
     networks:
