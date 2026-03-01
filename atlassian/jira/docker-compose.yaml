@@ -8,6 +8,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
+      - install:/opt/atlassian/confluence
       - home:/var/atlassian/application-data/jira
     networks:
       local:
@@ -45,3 +46,4 @@ networks:
 volumes:
   db:
   home:
+  install:

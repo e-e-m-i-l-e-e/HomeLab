@@ -8,6 +8,7 @@ services:
     ports:
       - "8090:8090"
     volumes:
+      - install:/opt/atlassian/confluence
       - home:/var/atlassian/application-data/confluence
     networks:
       local:
@@ -42,3 +43,4 @@ networks:
 volumes:
   db:
   home:
+  install:
