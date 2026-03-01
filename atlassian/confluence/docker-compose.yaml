@@ -8,7 +8,6 @@ services:
     ports:
       - "8090:8090"
     volumes:
-      - install:/opt/atlassian/confluence
       - home:/var/atlassian/application-data/confluence
     networks:
       local:
@@ -17,6 +16,10 @@ services:
       - ATL_DB_TYPE=postgresql
       - ATL_JDBC_USER=confluence
       - ATL_JDBC_PASSWORD=password
+      - ATL_PROXY_NAME=confluence.lab.eemilee.me
+      - ATL_PROXY_PORT=443
+      - ATL_TOMCAT_SCHEME=https
+      - ATL_TOMCAT_PORT=8090
     restart: unless-stopped
 
   postgres:
@@ -43,4 +46,3 @@ networks:
 volumes:
   db:
   home:
-  install:
