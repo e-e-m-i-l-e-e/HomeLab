@@ -9,7 +9,7 @@ services:
     volumes:
       - home:/var/opt/jfrog/artifactory
     networks:
-      artifactory:
+      local:
     depends_on:
       - postgres
     restart: unless-stopped
@@ -24,7 +24,7 @@ services:
     volumes:
       - db:/var/lib/postgresql/data
     networks:
-      artifactory:
+      local:
     restart: always
 
 volumes:
@@ -32,4 +32,4 @@ volumes:
   home:
 
 networks:
-  artifactory:
+  local:
