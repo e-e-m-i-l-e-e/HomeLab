@@ -7,29 +7,29 @@ services:
     ports:
       - "8082:8082"
     volumes:
-      - artifactory-data:/var/opt/jfrog/artifactory
+      - home:/var/opt/jfrog/artifactory
     networks:
-      artifactory-network:
+      artifactory:
     depends_on:
       - postgres
     restart: unless-stopped
 
   postgres:
     image: releases-docker.jfrog.io/postgres:17.6-alpine
-    container_name: postgres
+    container_name: jfrog-artifactory-db-postgres
     environment:
       - POSTGRES_DB=artifactory
       - POSTGRES_USER=artifactory
       - POSTGRES_PASSWORD=password
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - db:/var/lib/postgresql/data
     networks:
-      artifactory-network:
+      artifactory:
     restart: always
 
 volumes:
-  postgres-data:
-  artifactory-data:
+  db:
+  home:
 
 networks:
-  artifactory-network:
+  artifactory:

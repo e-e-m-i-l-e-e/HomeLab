@@ -1,36 +1,16 @@
 services:
-  postgres:
-    image: postgres:latest
-    container_name: confluence_postgres
-    environment:
-      POSTGRES_DB: confluence
-      POSTGRES_USER: confluence
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
-#    volumes:
-#      - confluence_postgres:/var/lib/postgresql/data
-    networks:
-      confluence-network:
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U confluence -d confluence" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
   confluence:
-    image: confluence:latest
+    image: artifactory.lab.eemilee.me/docker/confluence:latest
     container_name: confluence
     depends_on:
       postgres:
         condition: service_healthy
     ports:
       - "8090:8090"
-#    volumes:
-#      - confluence:/var/atlassian/application-data/confluence
+    volumes:
+      - home:/var/atlassian/application-data/confluence
     networks:
-      confluence-network:
+      confluence:
     environment:
       - ATL_JDBC_URL=jdbc:postgresql://postgres:5432/confluence
       - ATL_DB_TYPE=postgresql
@@ -38,9 +18,27 @@ services:
       - ATL_JDBC_PASSWORD=password
     restart: unless-stopped
 
-networks:
-  confluence-network:
+  postgres:
+    image: postgres:latest
+    container_name: confluence-db-postgres
+    environment:
+      POSTGRES_DB: confluence
+      POSTGRES_USER: confluence
+      POSTGRES_PASSWORD: password
+    volumes:
+      - db:/var/lib/postgresql/data
+    networks:
+      confluence:
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U confluence -d confluence" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
 
-#volumes:
-#  confluence:
-#  confluence_postgres:
+networks:
+  confluence:
+
+volumes:
+  db:
+  home:
