@@ -1,7 +1,11 @@
 services:
   jfrog-artifactory:
     image: emilyyy0621/jfrog-artifactory:latest
-    container_name: jfrog-artifactory
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == docker-vm1
     environment:
       - SKIP_WAIT_FOR_EXTERNAL_DB=true
     ports:
@@ -12,20 +16,27 @@ services:
       local:
     depends_on:
       - postgres
-    restart: unless-stopped
 
   postgres:
     image: releases-docker.jfrog.io/postgres:17.6-alpine
-    container_name: jfrog-artifactory-db-postgres
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.hostname == docker-master
     environment:
       - POSTGRES_DB=artifactory
       - POSTGRES_USER=artifactory
       - POSTGRES_PASSWORD=password
+      - POSTGRES_PASSWORD_FILE=/run/secrets/artifactory-db-password
+    secrets:
+      - artifactory-db-password
     volumes:
       - db:/var/lib/postgresql/data
     networks:
       local:
-    restart: always
 
 volumes:
   db:
@@ -33,3 +44,8 @@ volumes:
 
 networks:
   local:
+    driver: overlay
+
+secrets:
+  artifactory-db-password:
+    external: true
