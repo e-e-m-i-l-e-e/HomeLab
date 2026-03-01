@@ -1,16 +1,16 @@
 services:
   jira:
     image: artifactory.lab.eemilee.me/docker/jira:latest
-    container_name: jira
-    depends_on:
-      postgres:
-        condition: service_healthy
-    ports:
-      - "8080:8080"
-    volumes:
-      - home:/var/atlassian/application-data/jira
-    networks:
-      local:
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == docker-vm2
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.jira.entrypoints=web"
+        - "traefik.http.services.jira.loadbalancer.server.port=8080"
+        - "traefik.http.routers.jira.rule=Host(`jira.lab.eemilee.me`)"
     environment:
       - ATL_JDBC_URL=jdbc:postgresql://postgres:5432/jira
       - ATL_DB_DRIVER=org.postgresql.Driver
@@ -21,17 +21,31 @@ services:
       - ATL_PROXY_PORT=443
       - ATL_TOMCAT_SCHEME=https
       - ATL_TOMCAT_PORT=8080
-    restart: unless-stopped
+    volumes:
+      - home:/var/atlassian/application-data/jira
+    networks:
+      - local
+      - reverse-proxy
+    depends_on:
+      - postgres
 
   postgres:
     image: postgres:latest
-    container_name: jira-db-postgres
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.hostname == docker-master
     environment:
-      POSTGRES_DB: jira
-      POSTGRES_USER: jira
-      POSTGRES_PASSWORD: password
-      LANG: C.UTF-8
-      POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=en-US --encoding=UTF8"
+      - POSTGRES_DB=jira
+      - POSTGRES_USER=jira
+      - POSTGRES_PASSWORD_FILE=/run/secrets/jira-db-password
+      - LANG=C.UTF-8
+      - POSTGRES_INITDB_ARGS="--locale-provider=icu --icu-locale=en-US --encoding=UTF8"
+    secrets:
+      - jira-db-password
     volumes:
       - db:/var/lib/postgresql
     networks:
@@ -45,7 +59,14 @@ services:
 
 networks:
   local:
+    driver: overlay
+  reverse-proxy:
+    external: true
 
 volumes:
   db:
   home:
+
+secrets:
+  jira-db-password:
+    external: true

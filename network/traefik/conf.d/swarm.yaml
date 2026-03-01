@@ -1,0 +1,26 @@
+http:
+  routers:
+    swarm:
+      rule: "HostRegexp(`.+\\.lab\\.eemilee\\.me`)"
+      entryPoints:
+        - websecure
+      service: swarm
+      priority: 1
+      tls:
+        certResolver: letsencrypt
+
+  serversTransports:
+    swarm-transport:
+      forwardingTimeouts:
+        dialTimeout: 30s
+        responseHeaderTimeout: 3600s
+        idleConnTimeout: 90s
+        readIdleTimeout: 3600s
+
+  services:
+    swarm:
+      loadBalancer:
+        serversTransport: swarm-transport
+        servers:
+          - url: "http://192.168.0.202:80"
+        passHostHeader: true

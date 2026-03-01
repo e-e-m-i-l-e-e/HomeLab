@@ -1,0 +1,15 @@
+http:
+  routers:
+    pvescripts:
+      rule: "Host(`pvescripts.lab.eemilee.me`)"
+      entryPoints:
+        - websecure
+      service: pvescripts
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    pvescripts:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.0.120:3000"

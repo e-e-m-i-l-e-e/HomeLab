@@ -1,0 +1,15 @@
+http:
+  routers:
+    pihole:
+      rule: "Host(`pihole.lab.eemilee.me`)"
+      entryPoints:
+        - websecure
+      service: pihole
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    pihole:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.0.200:80"

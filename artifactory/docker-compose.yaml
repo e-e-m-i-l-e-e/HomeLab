@@ -6,14 +6,18 @@ services:
       placement:
         constraints:
           - node.hostname == docker-vm1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.artifactory.entrypoints=web"
+        - "traefik.http.services.artifactory.loadbalancer.server.port=8082"
+        - "traefik.http.routers.artifactory.rule=Host(`artifactory.lab.eemilee.me`)"
     environment:
       - SKIP_WAIT_FOR_EXTERNAL_DB=true
-    ports:
-      - "8082:8082"
     volumes:
       - home:/var/opt/jfrog/artifactory
     networks:
-      local:
+      - local
+      - reverse-proxy
     depends_on:
       - postgres
 
@@ -44,6 +48,8 @@ volumes:
 networks:
   local:
     driver: overlay
+  reverse-proxy:
+    external: true
 
 secrets:
   artifactory-db-password:

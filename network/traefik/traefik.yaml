@@ -1,0 +1,56 @@
+providers:
+  file:
+    directory: /etc/traefik/conf.d/
+
+entryPoints:
+  web:
+    address: ':80'
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: ':443'
+    http:
+      tls:
+        certResolver: letsencrypt
+    transport:
+      respondingTimeouts:
+        readTimeout: 3600s
+        idleTimeout: 3600s
+  traefik:
+    address: ':8080'
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: "emilyyy0621@gmail.com"
+      storage: /etc/traefik/ssl/acme.json
+      dnsChallenge:
+        provider: cloudflare
+        delayBeforeCheck: 0
+
+api:
+  dashboard: true
+
+log:
+  filePath: /var/log/traefik/traefik.log
+  format: json
+  level: DEBUG
+
+accessLog:
+  filePath: /var/log/traefik/traefik-access.log
+  format: json
+  filters:
+    statusCodes:
+      - "200"
+      - "400-599"
+    retryAttempts: true
+    minDuration: "10ms"
+  bufferingSize: 0
+  fields:
+    headers:
+      defaultMode: drop
+      names:
+        User-Agent: keep

@@ -1,0 +1,26 @@
+services:
+  traefik:
+    image: traefik:v3
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.role == manager
+    command:
+      - --log.level=INFO
+      - --providers.swarm=true
+      - --entrypoints.web.address=:80
+      - --providers.swarm.network=reverse-proxy
+      - --providers.swarm.exposedByDefault=false
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - reverse-proxy
+
+networks:
+  reverse-proxy:
+    external: true
