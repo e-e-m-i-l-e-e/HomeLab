@@ -9,7 +9,7 @@ services:
         constraints:
           - node.role == manager
     command:
-      - --log.level=INFO
+      - --log.level=DEBUG
       - --providers.swarm=true
       - --entrypoints.web.address=:80
       - --providers.swarm.network=reverse-proxy
