@@ -41,8 +41,6 @@ services:
     volumes:
       - config:/etc/gitlab
       - home:/var/opt/gitlab
-    ports:
-      - '22:22'
     networks:
       - local
       - reverse-proxy
