@@ -8,9 +8,9 @@ services:
           - node.hostname == docker-vm1
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.jira.entrypoints=web"
-        - "traefik.http.services.jira.loadbalancer.server.port=8080"
-        - "traefik.http.routers.jira.rule=Host(`gitlab.lab.eemilee.me`)"
+        - "traefik.http.routers.gitlab.entrypoints=web"
+        - "traefik.http.services.gitlab.loadbalancer.server.port=8080"
+        - "traefik.http.routers.gitlab.rule=Host(`gitlab.lab.eemilee.me`)"
     environment:
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'https://gitlab.lab.eemilee.me'
