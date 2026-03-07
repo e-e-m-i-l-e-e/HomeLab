@@ -1,0 +1,81 @@
+services:
+  gitlab:
+    image: artifactory.lab.eemilee.me/docker/gitlab:latest
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == docker-vm1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.jira.entrypoints=web"
+        - "traefik.http.services.jira.loadbalancer.server.port=8080"
+        - "traefik.http.routers.jira.rule=Host(`gitlab.lab.eemilee.me`)"
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'https://gitlab.lab.eemilee.me'
+
+        nginx['listen_port'] = 80
+        nginx['listen_https'] = false
+        nginx['redirect_http_to_https'] = false
+        
+        gitlab_rails['display_initial_root_password'] = true
+        gitlab_rails['initial_license_file'] = '/etc/gitlab/home-lab.gitlab-license'
+        
+        prometheus_monitoring['enable'] = false
+        alertmanager['enable'] = false
+        node_exporter['enable'] = false
+        gitlab_exporter['enable'] = false
+        postgres_exporter['enable'] = false
+        redis_exporter['enable'] = false
+        mattermost['enable'] = false
+        
+        postgresql['enable'] = false
+        gitlab_rails['db_adapter'] = 'postgresql'
+        gitlab_rails['db_encoding'] = 'unicode'
+        gitlab_rails['db_host'] = 'postgres'
+        gitlab_rails['db_port'] = 5432
+        gitlab_rails['db_database'] = 'gitlab'
+        gitlab_rails['db_username'] = 'gitlab'
+        gitlab_rails['db_password'] = 'password'
+    volumes:
+      - config:/etc/gitlab
+      - home:/var/opt/gitlab
+    networks:
+      - local
+      - reverse-proxy
+
+  postgres:
+    image: postgres:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.hostname == docker-master
+    environment:
+      - POSTGRES_DB=gitlab
+      - POSTGRES_USER=gitlab
+      - POSTGRES_PASSWORD_FILE=/run/secrets/gitlab-db-password
+    secrets:
+      - gitlab-db-password
+    volumes:
+      - db:/var/lib/postgresql/data
+    networks:
+      - local
+
+networks:
+  local:
+    driver: overlay
+  reverse-proxy:
+    external: true
+
+volumes:
+  db:
+  home:
+  config:
+
+secrets:
+  gitlab-db-password:
+    external: true
