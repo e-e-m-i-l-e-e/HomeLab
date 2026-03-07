@@ -11,9 +11,12 @@ services:
     command:
       - --log.level=INFO
       - --providers.swarm=true
-      - --entrypoints.web.address=:80
       - --providers.swarm.network=reverse-proxy
       - --providers.swarm.exposedByDefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.forwardedHeaders.insecure=true
+      - --entrypoints.web.transport.respondingTimeouts.readTimeout=3600s
+      - --entrypoints.web.transport.respondingTimeouts.writeTimeout=3600s
     ports:
       - "80:80"
     volumes:
