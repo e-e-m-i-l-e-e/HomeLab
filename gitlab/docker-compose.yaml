@@ -61,7 +61,7 @@ services:
     secrets:
       - gitlab-db-password
     volumes:
-      - db:/var/lib/postgresql/data
+      - db:/var/lib/postgresql
     networks:
       - local
 
