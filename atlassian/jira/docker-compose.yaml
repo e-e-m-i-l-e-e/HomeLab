@@ -43,7 +43,7 @@ services:
       - POSTGRES_USER=jira
       - POSTGRES_PASSWORD_FILE=/run/secrets/jira-db-password
       - LANG=C.UTF-8
-      - POSTGRES_INITDB_ARGS="--locale-provider=icu --icu-locale=en-US --encoding=UTF8"
+      - POSTGRES_INITDB_ARGS="--encoding=UTF8"
     secrets:
       - jira-db-password
     volumes:
