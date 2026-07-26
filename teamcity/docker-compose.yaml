@@ -1,0 +1,54 @@
+services:
+  teamcity-server:
+    image: artifactory.lab.eemilee.me/docker/teamcity:latest
+    ports:
+      - "8111:8111"
+    volumes:
+      - data:/data/teamcity_server/datadir
+    environment:
+      - TEAMCITY_DB_URL=jdbc:postgresql://postgres:5432/teamcity
+      - TEAMCITY_DB_USER=teamcity
+      - TEAMCITY_DB_PASSWORD=password
+    networks:
+      local:
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:latest
+#    deploy:
+#      replicas: 1
+#      restart_policy:
+#        condition: on-failure
+#      placement:
+#        constraints:
+#          - node.hostname == docker-master
+    environment:
+      - POSTGRES_DB=teamcity
+      - POSTGRES_USER=teamcity
+      - POSTGRES_PASSWORD=password
+#    secrets:
+#      - teamcity-db-password
+    volumes:
+      - db:/var/lib/postgresql
+    networks:
+      local:
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U teamcity -d teamcity" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  teamcity-agent:
+    image: jetbrains/teamcity-agent:latest
+    environment:
+      SERVER_URL: http://teamcity-server:8111
+    networks:
+      local:
+
+networks:
+  local:
+
+volumes:
+  db:
+  data:
