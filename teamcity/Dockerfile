@@ -1,10 +1,11 @@
-FROM jetbrains/teamcity-server:2025.11.3
+FROM jetbrains/teamcity-server:2026.1.3
 
 COPY agents /tmp/agents
 
 USER root
 WORKDIR /tmp
 RUN cd agents && \
+    sed -i 's/\r$//' gradlew && \
     ./gradlew shadowJar && \
     mkdir ${TEAMCITY_DIST}/patch && \
     cp build/output/teamcity-agent.jar ${TEAMCITY_DIST}/patch/agent.jar && \

@@ -1,2 +1,8 @@
 /.idea
+
+*.tfvars
 /artifactory/terraform/
+/portainer/terraform/.terraform
+/portainer/terraform/terraform.tfstate
+/portainer/terraform/.terraform.lock.hcl
+/portainer/terraform/terraform.tfstate.backup

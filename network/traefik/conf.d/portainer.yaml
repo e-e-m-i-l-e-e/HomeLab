@@ -12,7 +12,7 @@ http:
     portainer:
       loadBalancer:
         servers:
-          - url: "https://192.168.0.121:9443"
+          - url: "http://192.168.0.121:9000"
         serversTransport: portainerTransport
 
   serversTransports:
