@@ -1,0 +1,22 @@
+http:
+  routers:
+    chrysalis-docs:
+      rule: "Host(`chrysalis.docs.eemilee.me`)"
+      entryPoints:
+        - websecure
+      service: docs-nginx
+      middlewares:
+        - chrysalis-docs-path
+      tls:
+        certResolver: letsencrypt
+
+  middlewares:
+    chrysalis-docs-path:
+      addPrefix:
+        prefix: "/chrysalis/docs"
+
+  services:
+    docs-nginx:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.0.121:8081"
