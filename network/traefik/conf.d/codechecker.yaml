@@ -1,0 +1,15 @@
+http:
+  routers:
+    filebrowser:
+      rule: "Host(`codechecker.lab.eemilee.me`)"
+      entryPoints:
+        - websecure
+      service: filebrowser
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    filebrowser:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.0.121:8002"
